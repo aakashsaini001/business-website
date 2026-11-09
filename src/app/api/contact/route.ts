@@ -1,4 +1,5 @@
 ﻿import { NextResponse } from "next/server";
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { business } from "@/config/business";
 import { contactSchema } from "@/lib/contact-schema";
@@ -46,6 +47,65 @@ function escapeHtml(value: string) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+type EmailMessage = {
+  to: string;
+  replyTo?: string;
+  subject: string;
+  text: string;
+  html: string;
+};
+
+function createEmailSender() {
+  const gmailUser = process.env.GMAIL_USER?.trim();
+  const gmailPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "").trim();
+
+  if (gmailUser && gmailPassword) {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user: gmailUser, pass: gmailPassword },
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
+    });
+
+    return async (message: EmailMessage) => {
+      await transporter.sendMail({
+        from: `"${business.name}" <${gmailUser}>`,
+        to: message.to,
+        ...(message.replyTo ? { replyTo: message.replyTo } : {}),
+        subject: message.subject,
+        text: message.text,
+        html: message.html,
+      });
+    };
+  }
+
+  const apiKey = process.env.RESEND_API_KEY?.trim();
+  if (apiKey) {
+    const resend = new Resend(apiKey);
+    const from =
+      process.env.RESEND_FROM_EMAIL?.trim() ||
+      `${business.name} <onboarding@resend.dev>`;
+
+    return async (message: EmailMessage) => {
+      const { error } = await resend.emails.send({
+        from,
+        to: [message.to],
+        ...(message.replyTo ? { replyTo: message.replyTo } : {}),
+        subject: message.subject,
+        text: message.text,
+        html: message.html,
+      });
+
+      if (error) throw new Error(error.message);
+    };
+  }
+
+  return null;
 }
 
 function validationResponse(
@@ -133,13 +193,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const sendEmail = createEmailSender();
   const to = process.env.CONTACT_TO_EMAIL?.trim() || business.email;
-  const from =
-    process.env.RESEND_FROM_EMAIL?.trim() ||
-    `${business.name} <onboarding@resend.dev>`;
 
-  if (!apiKey) {
+  if (!sendEmail) {
     return NextResponse.json<ContactApiResponse>(
       {
         ok: false,
@@ -174,10 +231,8 @@ export async function POST(request: Request) {
     .join("");
 
   try {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from,
-      to: [to],
+    await sendEmail({
+      to,
       replyTo: data.email,
       subject: `Project enquiry from ${safeName}`,
       text: [
@@ -206,18 +261,6 @@ export async function POST(request: Request) {
         </div>
       `,
     });
-
-    if (error) {
-      return NextResponse.json<ContactApiResponse>(
-        {
-          ok: false,
-          code: "SEND_FAILED",
-          message:
-            `The enquiry could not be delivered. Please email ${business.email} directly.`,
-        },
-        { status: 502 },
-      );
-    }
 
     const customerText = [
       `Hi ${safeName},`,
@@ -275,16 +318,13 @@ export async function POST(request: Request) {
       </div>
     `;
 
-    await resend.emails
-      .send({
-        from,
-        to: [data.email],
-        replyTo: to,
-        subject: `Thank you for your enquiry — ${business.name}`,
-        text: customerText,
-        html: customerHtml,
-      })
-      .catch(() => undefined);
+    await sendEmail({
+      to: data.email,
+      replyTo: to,
+      subject: `Thank you for your enquiry — ${business.name}`,
+      text: customerText,
+      html: customerHtml,
+    }).catch(() => undefined);
   } catch {
     return NextResponse.json<ContactApiResponse>(
       {
