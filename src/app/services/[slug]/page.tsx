@@ -15,7 +15,7 @@ import {
 import { getService, services, type ServiceIcon } from "@/content/services";
 import { getProject, projects } from "@/content/projects";
 import { createPageMetadata } from "@/lib/metadata";
-import { breadcrumbSchema, serviceSchema } from "@/lib/schema";
+import { breadcrumbSchema, faqSchema, serviceSchema } from "@/lib/schema";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { BrowserFrame } from "@/components/ui/BrowserFrame";
 import { ButtonLink } from "@/components/ui/ButtonLink";
@@ -444,6 +444,7 @@ export default async function ServiceDetailPage({ params }: Props) {
             { name: "Services", path: "/services" },
             { name: service.navLabel, path: `/services/${service.slug}` },
           ]),
+          faqSchema(service.faqs),
         ]}
       />
     </>

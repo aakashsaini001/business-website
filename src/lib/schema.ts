@@ -9,8 +9,14 @@ export function professionalServiceSchema() {
     name: business.name,
     url: business.siteUrl,
     email: business.email,
+    logo: absoluteUrl("/icon.svg"),
+    image: absoluteUrl("/opengraph-image"),
     description:
       "Independent web design and development studio building custom business websites, e-commerce experiences and search-ready digital platforms.",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "IN",
+    },
     serviceType: [
       "Website design",
       "Website development",
@@ -86,6 +92,21 @@ export function serviceSchema({
     areaServed: business.serviceArea.map((area) => ({
       "@type": "Country",
       name: area,
+    })),
+  };
+}
+
+export function faqSchema(items: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
     })),
   };
 }

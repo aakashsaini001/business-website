@@ -5,6 +5,7 @@ import { professionalServiceSchema, websiteSchema } from "@/lib/schema";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { MobileCTA } from "@/components/layout/MobileCTA";
+import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { JsonLd } from "@/components/ui/JsonLd";
 import "./globals.css";
 
@@ -31,7 +32,7 @@ const instrumentSerif = Instrument_Serif({
 export const metadata: Metadata = {
   metadataBase: new URL(business.siteUrl),
   title: {
-    default: `${business.name} — Web design & development for growing businesses`,
+    default: `${business.name} — Web Design & Development Company in India`,
     template: `%s · ${business.name}`,
   },
   description:
@@ -41,21 +42,30 @@ export const metadata: Metadata = {
   creator: business.name,
   publisher: business.name,
   category: "Web design and development",
-  alternates: { canonical: "/" },
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": "/blog/rss.xml" },
+  },
   openGraph: {
     type: "website",
     locale: "en_IN",
     url: "/",
     siteName: business.name,
-    title: `${business.name} — Web design & development`,
+    title: `${business.name} — Web Design & Development Company in India`,
     description:
       "Custom websites, e-commerce experiences and SEO-ready digital platforms for businesses that want to grow online.",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${business.name} — Web design & development`,
+    title: `${business.name} — Web Design & Development Company in India`,
     description:
       "Custom websites, e-commerce experiences and SEO-ready digital platforms for businesses that want to grow online.",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
+      : {},
   },
   robots: {
     index: true,
@@ -85,7 +95,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
-      lang="en"
+      lang="en-IN"
       className={`${manrope.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
     >
       <body>
@@ -100,6 +110,7 @@ export default function RootLayout({
         <SiteFooter />
         <MobileCTA />
         <JsonLd data={[professionalServiceSchema(), websiteSchema()]} />
+        <GoogleAnalytics />
       </body>
     </html>
   );

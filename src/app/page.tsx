@@ -14,7 +14,7 @@ import { JournalPreview } from "@/components/home/JournalPreview";
 import { ProjectCTA } from "@/components/shared/ProjectCTA";
 
 export const metadata: Metadata = createPageMetadata({
-  title: "Web design & development for growing businesses",
+  title: `${business.name} — Web Design & Development Company in India`,
   description:
     "Freelen Studio is an independent web design and development studio in India, building custom business websites, e-commerce experiences and SEO-ready platforms for clients worldwide.",
   path: "/",
