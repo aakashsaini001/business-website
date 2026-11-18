@@ -62,7 +62,7 @@ export const metadata: Metadata = {
       "Custom websites, e-commerce experiences and SEO-ready digital platforms for businesses that want to grow online.",
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    google: "GBCch_ZNQkvJpb2yvwzboMzWef0FqEZjWCGcnJSCa1M",
     other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
       ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
       : {},
