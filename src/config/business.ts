@@ -9,7 +9,10 @@
  */
 
 const rawSiteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://freelen.studio";
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+  process.env.URL?.trim() ||
+  process.env.DEPLOY_PRIME_URL?.trim() ||
+  "https://freelen.studio";
 
 export const business = {
   name: "Freelen Studio",
