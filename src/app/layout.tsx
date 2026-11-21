@@ -99,7 +99,7 @@ export default function RootLayout({
       className={`${manrope.variable} ${spaceGrotesk.variable} ${instrumentSerif.variable}`}
     >
       <head>
-        <meta name="google-site-verification" content="GBCch_ZNQkvJpb2yvwzboMzWef0FqEZjWCGcnJSCa1M" />
+        <meta name="google-site-verification" content="DhrGIcmLAUpB2cepwIVEYONobsMRVyNvhncN-C-oy5g" />
       </head>
       <body>
         <noscript>
